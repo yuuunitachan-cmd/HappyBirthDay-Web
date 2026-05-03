@@ -18,24 +18,59 @@ function createSparkles() {
   }
 }
 
+// ── Slideshow foto ──
+function startSlideshow() {
+  const photos = [
+    'img/anisa.png',
+    'img/alan1.jpeg',
+    'img/alan2.jpeg',
+    'img/alan3.jpeg',
+  ];
+  let current = 0;
+  const img = document.getElementById('imagePath');
+
+  setInterval(() => {
+    // Fade out
+    img.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+    img.style.opacity = '0';
+    img.style.transform = 'scale(0.92)';
+
+    setTimeout(() => {
+      current = (current + 1) % photos.length;
+      img.src = photos[current];
+
+      // Fade in
+      img.style.opacity = '1';
+      img.style.transform = 'scale(1)';
+    }, 650);
+  }, 3000); // ganti foto setiap 3 detik
+}
+
 // Trigger music popup
 window.addEventListener('load', () => {
   createSparkles();
 
-  Swal.fire({
-    title: '🎂 Mainkan Musik?',
-    icon: 'question',
-    showCancelButton: true,
-    confirmButtonColor: '#ff6eb4',
-    cancelButtonColor: '#c084fc',
-    confirmButtonText: 'Yes 🎵',
-    cancelButtonText: 'No',
-  }).then((result) => {
-    if (result.isConfirmed) {
-      document.querySelector('.song').play();
-    }
+  if (typeof Swal === 'undefined') {
     resolveFetch().then(() => animationTimeline());
-  });
+    return;
+  }
+
+  setTimeout(() => {
+    Swal.fire({
+      title: '🎂 Mainkan Musik?',
+      icon: 'question',
+      showCancelButton: true,
+      confirmButtonColor: '#ff6eb4',
+      cancelButtonColor: '#c084fc',
+      confirmButtonText: 'Yes 🎵',
+      cancelButtonText: 'No',
+    }).then((result) => {
+      if (result.isConfirmed) {
+        document.querySelector('.song').play();
+      }
+      resolveFetch().then(() => animationTimeline());
+    });
+  }, 300);
 });
 
 // Animation timeline
@@ -63,7 +98,6 @@ const animationTimeline = () => {
     skewX: "-15deg"
   };
 
-  // Responsif: hitung viewport height untuk animasi balon
   const vh = window.innerHeight;
   const balonStart = vh + 80;
   const balonEnd = -(vh * 0.7);
@@ -118,7 +152,6 @@ const animationTimeline = () => {
       rotation: -15,
       ease: Expo.easeOut,
     }, 0.2, "+=1.5")
-    // Balon responsif: gunakan vh aktual bukan nilai hardcoded
     .staggerFromTo(".baloons img", 2.8,
       { opacity: 0.9, y: balonStart },
       { opacity: 1,   y: balonEnd },
@@ -151,6 +184,8 @@ const animationTimeline = () => {
       "party"
     )
     .from(".wish h5", 0.5, { opacity: 0, y: 10, skewX: "-15deg" }, "party")
+    // Mulai slideshow saat section six muncul
+    .call(startSlideshow)
     .staggerTo(".eight svg", 1.5, {
       visibility: "visible",
       opacity: 0,
